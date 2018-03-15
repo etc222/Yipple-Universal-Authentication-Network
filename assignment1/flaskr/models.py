@@ -2,7 +2,6 @@ import os
 import json
 import bcrypt
 import uuid
-from flask import request
 
 class KomradeConfig:
     def __init__(self, name):
