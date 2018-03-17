@@ -18,7 +18,7 @@ def login():
             return "invalid login details", 403
         if outcome == 0:
             session['username'] = username
-            return redirect(url_for('basic.users', account = username))
+            return redirect(url_for('basic.users', account = 'me'))
         return "login request received", 400
 
     return render_template("login.html")
@@ -37,13 +37,17 @@ def register():
         username = request.form.get("username")
         password = request.form.get("password")
         outcome = models.registerUser(username, password)
-        if outcome == 400:
-            return "username is taken", 400
         if outcome == 0:
             return redirect(url_for('basic.login'))
+        elif outcome == 400:
+            return "username is taken", 400
+        else:
+            return "Server error", 500
+
     return render_template("register.html")
 
 ## Define variable account
 @app.route('/users/<account>')
 def users(account):
-    return render_template("users.html", account = account)
+    displayAccount = session['username'] if account == 'me' else account
+    return render_template("users.html", account = displayAccount)

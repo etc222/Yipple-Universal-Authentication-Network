@@ -20,13 +20,16 @@ class KomradeConfig:
 ##Check to see if username is in database otherwise write new user in database
 def registerUser(username, password):
     komrade = KomradeConfig("user")
-    data = komrade.read()      
-    if username in data:
-        return 400
-    else:
-        data[username] = password
-        komrade.write(data)
-        return 0
+    data = komrade.read()
+    try:      
+        if username in data:
+            return 400
+        else:
+            data[username] = password
+            komrade.write(data)
+            return 0
+    except:
+        return 500
     
 ##Check to see if username is in database
 def validateUser(username, password):
