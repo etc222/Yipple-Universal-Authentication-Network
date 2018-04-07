@@ -6,12 +6,14 @@ from . import app
 from .. import models
 import os
 
+
 @app.route('/')
 def home():
     username = None
     if 'username' in session:
         username = session['username']
     return render_template("home.html", username=username)
+
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
@@ -43,11 +45,13 @@ def login():
 
     return render_template("login.html")
 
+
 @app.route('/logout', methods=["GET"])
 def logout():
     session.clear()
 
     return redirect(url_for("basic.home"))
+
 
 @app.route('/register', methods=["GET", "POST"])
 def register():
@@ -73,8 +77,10 @@ def register():
 
     return render_template("register.html")
 
+
 def isUserAuthenticated(username):
     return 'username' in session and (username == session['username'] or models.isUserAdmin(session['username'])[1])
+
 
 @app.route('/users/<account>', methods=["GET", "POST"])
 def users(account):
@@ -95,40 +101,44 @@ def users(account):
         response = render_template("users.html", username=username, creds=userCreds)
     else:
         # Validate user
-        if not isUserAuthenticated(username):
+        if not isUserAuthenticated(username) or (
+                request.form.get('username') != username and not models.isUserAdmin(username)[1]):
             return '403 permission denied', 403
 
+        models.setUserCreds(request.form.get('username'), request.form.get('name'),
+                                            request.form.get('address'),
+                                            request.form.get('email'),
+                                            request.form.get('phonenum'), request.form.get('funds'))
         userCreds = models.getUserCreds(username)
         response = render_template("users.html", username=username, creds=userCreds)
 
     return response
 
-@app.route('/admin')
+
+@app.route('/admin', methods=["GET", "POST"])
 def admin():
     response = None
 
     if request.method == 'GET':
-        # TODO: Implement and secure the user administration control panel
-        # The administration panel must distinguish between users that are administrators
-        # as well as regular users.
-        # It should also be able to search for a user via a get parameter called user.
         if 'username' not in session or not isUserAuthenticated(session['username']) or not \
-        models.isUserAdmin(session['username'])[1]:
+                models.isUserAdmin(session['username'])[1]:
             return '403 permission denied', 403
-        searchedUser = request.args.get('user')
-        response = render_template("admin.html", user=searchedUser)
+
+        searchedUser = request.args.get('search')
+        _, userCreds = models.getUserCreds(searchedUser)
+        response = render_template("admin.html", user=searchedUser, creds=userCreds)
 
     elif request.method == 'POST':
-        # TODO: You must also implement a post method in order update a searched users credentials.
-        # It must return a page that denies a regular user
-        # access and display '403 permission denied'.
         if 'username' not in session or not isUserAuthenticated(session['username']) or not \
-        models.isUserAdmin(session['username'])[1]:
+                models.isUserAdmin(session['username'])[1]:
             return '403 permission denied', 403
-        response = render_template("admin.html")
+
+        models.setUserCreds(request.form.get('username'), request.form.get('name'),
+                                            request.form.get('address'),
+                                            request.form.get('email'),
+                                            request.form.get('phonenum'), request.form.get('funds'))
+
+        _, userCreds = models.getUserCreds(request.form.get('username'))
+        response = render_template("admin.html", user=request.form.get('username'), creds=userCreds)
 
     return response
-
-
-
-

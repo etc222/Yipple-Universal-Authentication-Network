@@ -5,6 +5,7 @@ import uuid
 
 from .db import getDB, queryDB, insertDB
 
+
 def registerUser(username, password):
     isSuccess = False
 
@@ -22,6 +23,7 @@ def registerUser(username, password):
         insertDB('INSERT INTO users (username, passhash) values (?, ?)', (username, password))
         isSuccess = True
     return (isSuccess, 'Registration successful')
+
 
 # Returns tuple of (success, session)
 # Session is the username in this case.
@@ -42,6 +44,7 @@ def validateUser(username, password):
 
     return (isSuccess, None)
 
+
 def isUserAdmin(username):
     isSuccess = False
 
@@ -58,16 +61,36 @@ def isUserAdmin(username):
 
     return (isSuccess, False)
 
+
 def getUserCreds(username):
     isSuccess = False
 
     if not username:
         return (isSuccess, False)
 
-    res = queryDB('SELECT name, address, email, phonenum, funds FROM creds JOIN users ON users.uid=creds.uid WHERE username = ?', [username], one=True)
+    res = queryDB(
+        'SELECT name, address, email, phonenum, funds FROM creds JOIN users ON users.uid=creds.uid WHERE username = ?',
+        [username], one=True)
 
     if res is not None:
         isSuccess = True
         return (isSuccess, res)
 
     return (isSuccess, False)
+
+
+def setUserCreds(username, name, address, email, phonenum, funds):
+    isSuccess = False
+
+    # Check input lengths
+    if not username or not name or not address or not email or not phonenum or not funds:
+        return (isSuccess, 'Field not supplied')
+
+    res = queryDB('SELECT uid FROM users WHERE username = ?', [username], one=True)
+    if res is None:
+        return (isSuccess, 'Username does not exist')
+    else:
+        insertDB("UPDATE creds SET name=?, address=?, email=?, phonenum=?, funds=? WHERE uid=?",
+                 (name, address, email, phonenum, funds, res[0]))
+        isSuccess = True
+    return (isSuccess, 'Credentials updated')

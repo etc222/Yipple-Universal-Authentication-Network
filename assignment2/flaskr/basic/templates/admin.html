@@ -34,11 +34,9 @@ to edit and update the credentials of any given KomradeBank account.
         <!-- IMPLEMENT ME -->
         <tbody>
             <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
+                {% for item in creds %}
+                <td>{{ item }}</td>
+                {% endfor %}
             </tr>
         </tbody>
     </table>
