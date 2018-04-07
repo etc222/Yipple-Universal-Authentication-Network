@@ -109,7 +109,7 @@ def users(account):
                                             request.form.get('address'),
                                             request.form.get('email'),
                                             request.form.get('phonenum'), request.form.get('funds'))
-        userCreds = models.getUserCreds(username)
+        _, userCreds = models.getUserCreds(username)
         response = render_template("users.html", username=username, creds=userCreds)
 
     return response

@@ -27,7 +27,7 @@ to edit and update the credentials of any given KomradeBank account.
         <thead>
             <th>Name</th>
             <th>Address</th>
-            <th>Emaik</th>
+            <th>Email</th>
             <th>Phone</th>
             <th>Current Funds</th>
         </thead>
@@ -42,7 +42,15 @@ to edit and update the credentials of any given KomradeBank account.
     </table>
 
     <h3>Edit credentials for {{ user }} </h3>
-    <form><!-- IMPLEMENT ME --></form>
+    <form method="POST"><!-- IMPLEMENT ME -->
+        <p><input type="hidden" name="username" value={{ user }} ></input>
+	    Name: <input type="text" name="name" value="{{creds[0]}}"></input> <br/>
+        Address: <input type="text" name="address" value="{{creds[1]}}"></input> <br/>
+        Email: <input type="text" name="email" value="{{creds[2]}}"></input> <br/>
+        Phone: <input type="text" name="phonenum" value="{{creds[3]}}"></input> <br/>
+        Current Funds: <input type="text" name="funds" value="{{creds[4]}}"></input> </p>
+        <input type="submit" class="btn btn-success" value="Submit"></input>
+	</form>
 
     {% else %}
     <p>Search for a user to edit their credentials</p>
