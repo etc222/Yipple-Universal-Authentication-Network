@@ -73,26 +73,33 @@ def register():
 
     return render_template("register.html")
 
-@app.route('/users/<account>')
+def isUserAuthenticated(username):
+    return 'username' in session and (username == session['username'] or models.isUserAdmin(session['username'])[1])
+
+@app.route('/users/<account>', methods=["GET", "POST"])
 def users(account):
     username = account
 
     if username == 'me':
         if 'username' in session:
-            response = render_template("users.html", username=username)
+            username = session['username']
+        else:
+            return '403 permission denied', 403
 
-    # TODO: Implement the ability to edit and view credentials for
-    # the creds database.
     if request.method == 'GET':
-        # TODO: Display credentials if user belongs to current session, or if user is admin.
-        # Deny access otherwise and display '404 not found' on the page
-        response = render_template("users.html", username=username)
+        # Validate user
+        if not isUserAuthenticated(username):
+            return '403 permission denied', 403
+
+        _, userCreds = models.getUserCreds(username)
+        response = render_template("users.html", username=username, creds=userCreds)
     else:
-        # TODO: Update The Credentials
-        # Two types of users can edit credentials for <account>
-        # 1. Regular Users that have sessions == <account>
-        # 2. Administrators.
-        response = render_template("users.html", username=username)
+        # Validate user
+        if not isUserAuthenticated(username):
+            return '403 permission denied', 403
+
+        userCreds = models.getUserCreds(username)
+        response = render_template("users.html", username=username, creds=userCreds)
 
     return response
 
@@ -105,6 +112,9 @@ def admin():
         # The administration panel must distinguish between users that are administrators
         # as well as regular users.
         # It should also be able to search for a user via a get parameter called user.
+        if 'username' not in session or not isUserAuthenticated(session['username']) or not \
+        models.isUserAdmin(session['username'])[1]:
+            return '403 permission denied', 403
         searchedUser = request.args.get('user')
         response = render_template("admin.html", user=searchedUser)
 
@@ -112,6 +122,9 @@ def admin():
         # TODO: You must also implement a post method in order update a searched users credentials.
         # It must return a page that denies a regular user
         # access and display '403 permission denied'.
+        if 'username' not in session or not isUserAuthenticated(session['username']) or not \
+        models.isUserAdmin(session['username'])[1]:
+            return '403 permission denied', 403
         response = render_template("admin.html")
 
     return response

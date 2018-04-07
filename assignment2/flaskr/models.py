@@ -42,3 +42,32 @@ def validateUser(username, password):
 
     return (isSuccess, None)
 
+def isUserAdmin(username):
+    isSuccess = False
+
+    if not username:
+        return (isSuccess, False)
+
+    res = queryDB('SELECT * FROM users WHERE username = ?', [username], one=True)
+
+    if res is not None:
+        if res[3] == 1:
+            isSuccess = True
+            return (isSuccess, True)
+        return (isSuccess, False)
+
+    return (isSuccess, False)
+
+def getUserCreds(username):
+    isSuccess = False
+
+    if not username:
+        return (isSuccess, False)
+
+    res = queryDB('SELECT name, address, email, phonenum, funds FROM creds JOIN users ON users.uid=creds.uid WHERE username = ?', [username], one=True)
+
+    if res is not None:
+        isSuccess = True
+        return (isSuccess, res)
+
+    return (isSuccess, False)

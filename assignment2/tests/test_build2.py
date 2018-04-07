@@ -39,7 +39,7 @@ carol_creds = {
     'address':'Californ-eye-ay', \
     'email':'carol@candle.lite', \
     'phonenum':'+66 666 6666', \
-    'funds':'41424344'
+    'funds':'42'
 }
 
 DENIEDSTR = b'403 permission denied'
