@@ -49,9 +49,9 @@ class DB:
         with self.con as conn:
             cur = conn.cursor()
             try:
-                for q in sql:
+                for q, args in sql:
                     # print(q)
-                    cur.execute(q)
+                    cur.execute(q, args)
                 conn.commit()
                 return True
             except:
@@ -223,21 +223,21 @@ class Acct:
     @staticmethod
     def new(user_id):
         id = str(uuid.uuid4())
-        db.execute('-- TODO: write SQL query to insert new account with provided account id and user id', [id, user_id])
+        db.execute('INSERT INTO accts (acct_id, acct_user) VALUES (?, ?)', [id, user_id])
         Xact.new(id, 'starting balance', 0.00)
         do_transfer(Acct.by_user_id(1)[0].id, id, 1337.00, 'KomradeBank New Account Bonus Offer')
         return id
 
     @staticmethod
     def by_id(acct_id):
-        row = db.get('-- TODO: write SQL query to return a single row for a specific account id', [acct_id])
+        row = db.get('SELECT * FROM accts WHERE acct_id = ?', [acct_id])
         if row is None:
             return None
         return Acct._from_row(row)
 
     @staticmethod
     def by_user_id(user_id):
-        rows = db.select('-- TODO: write SQL query to return all rows for a specified user id', [user_id])
+        rows = db.select('SELECT * FROM accts WHERE acct_user = ?', [user_id])
         accts = []
         for row in rows:
             accts.append(Acct._from_row(row))
@@ -245,7 +245,7 @@ class Acct:
 
     @staticmethod
     def by_filter(filter):
-        rows = db.select('-- TODO: write SQL query to return all rows where account id matches a LIKE filter', ['%' + filter + '%'])
+        rows = db.select('SELECT * FROM accts WHERE acct_id LIKE ?', ['%' + filter + '%'])
         accts = []
         for row in rows:
             accts.append(Acct._from_row(row))
@@ -273,37 +273,33 @@ class Xact:
 
     @staticmethod
     def new(acct_id, memo, amount):
-
-        # TODO: Implement method to create new transaction.
-
-        # Returns id for the newly inserted transaction. (provided by db.execute())
-        return -1
+        id = str(uuid.uuid4())
+        print([id, acct_id, memo, amount])
+        db.execute('INSERT INTO xacts (xact_acct, xact_memo, xact_amount) VALUES (?, ?, ?)', [acct_id, memo, amount])
+        return id
 
     @staticmethod
     def by_id(xact_id):
-
-        # TODO: Implement method to return the transaction for a given id.
-
-        # Returns Xact object
-        return None
+        row = db.get('SELECT * FROM xacts WHERE xact_id = ?', [xact_id])
+        if row is None:
+            return None
+        return Xact._from_row(row)
 
     @staticmethod
     def by_acct_id(acct_id):
-
-        # TODO: Implement method to return list of all transactions for a given account id.
-        # SQL query should be ordered so the most recent transaction (by id) is first i.e. index 0.
-        
-        # Returns list of Xact objects
-        return []
+        rows = db.select('SELECT * FROM xacts WHERE xact_acct = ?', [acct_id])
+        xacts = []
+        for row in rows:
+            xacts.append(Xact._from_row(row))
+        return xacts
 
     @staticmethod
     def by_filter(filter):
-
-        # TODO: Implement method to return list of all transactions where 'xact_memo' matches a LIKE filter.
-        # SQL query should be ordered so the most recent transaction (by id) is first i.e. index 0.
-
-        # Returns list of Xact objects
-        return []
+        rows = db.select('SELECT * FROM xacts WHERE xact_memo LIKE ?', ['%' + filter + '%'])
+        xacts = []
+        for row in rows:
+            xacts.append(Xact._from_row(row))
+        return xacts
 
 
 def do_transfer(src, dst, amount, memo):
@@ -323,18 +319,21 @@ def do_transfer(src, dst, amount, memo):
       c) Source account must have sufficient funds for transfer.
     """
 
-    # return "Transfer Failed - Invalid Accounts."
+    if src_acct == None or dst_acct == None or src_acct == dst_acct:
+        return "Transfer Failed - Invalid Accounts."
 
-    # return "Transfer Failed - Invalid amount."
+    if amount <= 0:
+        return "Transfer Failed - Invalid amount."
 
-    # return "Transfer Failed - Insufficient funds."
+    if src_acct.balance < amount:
+        return "Transfer Failed - Insufficient funds."
 
 
     sql = [
-        '-- TODO: write SQL query to insert new transaction for source account',
-        '-- TODO: write SQL query to insert new transaction for destination account',
-        '-- TODO: write SQL query to update source account balance',
-        '-- TODO: write SQL query to update destination account balance',
+        ('INSERT INTO xacts (xact_acct, xact_memo, xact_amount) VALUES (?, ?, ?)', [src, memo, -amount]),
+        ('INSERT INTO xacts (xact_acct, xact_memo, xact_amount) VALUES (?, ?, ?)', [dst, memo, amount]),
+        ('UPDATE accts SET acct_balance = ? WHERE acct_id = ?', [(src_acct.balance - amount), src]),
+        ('UPDATE accts SET acct_balance = ? WHERE acct_id = ?', [(dst_acct.balance + amount), dst]),
     ]
 
     if not db.transaction(sql):
