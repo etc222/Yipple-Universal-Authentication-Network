@@ -20,4 +20,4 @@ INSERT INTO users (uid, username, passhash, admin) VALUES (2, 'carol', '0xbeefca
 
 INSERT INTO creds (uid, name, address, email, phonenum, funds) VALUES ('0', 'Alice Administrator', 'Omnipotent', 'alice@alice.com', '+313 373 8483', 31333337);
 INSERT INTO creds (uid, name, address, email, phonenum, funds) VALUES ('1', 'Bob Bandit', 'Nowhere', 'bob@bob.com', '-123 456 7890', 1337);
-INSERT INTO creds (uid, name, address, email, phonenum, funds) VALUES ('2', 'Sweet Carolina', 'Californ-eye-ay', 'carol@candle.lite', '+66 666 6666', 42);
+INSERT INTO creds (uid, name, address, email, phonenum, funds) VALUES ('2', 'Sweet Carolina', 'Californ-eye-ay', 'carol@candle.lite', '+66 666 6666', 41424344);

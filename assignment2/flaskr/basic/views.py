@@ -124,7 +124,7 @@ def admin():
                 models.isUserAdmin(session['username'])[1]:
             return '403 permission denied', 403
 
-        searchedUser = request.args.get('search')
+        searchedUser = request.args.get('user')
         _, userCreds = models.getUserCreds(searchedUser)
         response = render_template("admin.html", user=searchedUser, creds=userCreds)
 
