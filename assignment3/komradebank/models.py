@@ -285,20 +285,18 @@ class Xact:
 
     @staticmethod
     def by_acct_id(acct_id):
-        rows = db.select('SELECT * FROM xacts WHERE xact_acct = ?', [acct_id])
+        rows = db.select('SELECT * FROM xacts WHERE xact_acct = ? ORDER BY xact_timestamp DESC', [acct_id])
         xacts = []
         for row in rows:
             xacts.append(Xact._from_row(row))
-        xacts = list(reversed(xacts))
         return xacts
 
     @staticmethod
     def by_filter(filter):
-        rows = db.select('SELECT * FROM xacts WHERE xact_memo LIKE ?', ['%' + filter + '%'])
+        rows = db.select('SELECT * FROM xacts WHERE xact_memo LIKE ? ORDER BY xact_timestamp DESC', ['%' + filter + '%'])
         xacts = []
         for row in rows:
             xacts.append(Xact._from_row(row))
-        xacts = list(reversed(xacts))
         return xacts
 
 
