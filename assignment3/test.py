@@ -309,7 +309,8 @@ class TestTransfer(TestIntegrationBase):
 
         # Validate transaction appears in other user's account.
         xacts = Xact.by_acct_id(acct_id)
-        assert xacts[0].memo == xferMemo and xacts[0].amount == float(xferAmount)
+        assert xacts[0].memo == xferMemo
+        assert xacts[0].amount == float(xferAmount)
 
 
 class TestAdmin(TestIntegrationBase):

@@ -273,9 +273,7 @@ class Xact:
 
     @staticmethod
     def new(acct_id, memo, amount):
-        id = str(uuid.uuid4())
-        print([id, acct_id, memo, amount])
-        db.execute('INSERT INTO xacts (xact_acct, xact_memo, xact_amount) VALUES (?, ?, ?)', [acct_id, memo, amount])
+        id = db.execute('INSERT INTO xacts (xact_acct, xact_memo, xact_amount) VALUES (?, ?, ?)', [acct_id, memo, amount])
         return id
 
     @staticmethod
