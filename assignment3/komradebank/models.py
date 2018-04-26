@@ -289,6 +289,7 @@ class Xact:
         xacts = []
         for row in rows:
             xacts.append(Xact._from_row(row))
+        xacts = list(reversed(xacts))
         return xacts
 
     @staticmethod
@@ -297,6 +298,7 @@ class Xact:
         xacts = []
         for row in rows:
             xacts.append(Xact._from_row(row))
+        xacts = list(reversed(xacts))
         return xacts
 
 
